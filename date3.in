@@ -1,5 +1,5 @@
 E T F 
-a + * ( ) $
+a + - * ( ) $
 E=E+T
 E=T
 T=T*F
@@ -7,4 +7,4 @@ T=F
 F=(E)
 F=a
 E
-a*(a+a)$
+a+a*a+a*a+a$

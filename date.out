@@ -9,45 +9,71 @@ $ -1 acc r2 r4 -1 r6 -1 -1 -1 r1 r3 r5
 ) -1 -1 r2 r4 -1 r6 -1 -1 d11 r1 r3 r5
 * -1 -1 d7 r4 -1 r6 -1 -1 -1 d7 r3 r5
 + -1 d6 r2 r4 -1 r6 -1 -1 d6 r1 r3 r5
+- -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 a d5 -1 -1 -1 d5 -1 d5 d5 -1 -1 -1 -1
 
-0 $ 
+$ 0 
 Action = d5
-5 a 0 $ 
+$ 0 a 5 
 Action = r6
-3 F 0 $ 
+$ 0 F 3 
 Action = r4
-2 T 0 $ 
-Action = d7
-7 * 2 T 0 $ 
-Action = d4
-4 ( 7 * 2 T 0 $ 
-Action = d5
-5 a 4 ( 7 * 2 T 0 $ 
-Action = r6
-3 F 4 ( 7 * 2 T 0 $ 
-Action = r4
-2 T 4 ( 7 * 2 T 0 $ 
+$ 0 T 2 
 Action = r2
-8 E 4 ( 7 * 2 T 0 $ 
+$ 0 E 1 
 Action = d6
-6 + 8 E 4 ( 7 * 2 T 0 $ 
+$ 0 E 1 + 6 
 Action = d5
-5 a 6 + 8 E 4 ( 7 * 2 T 0 $ 
+$ 0 E 1 + 6 a 5 
 Action = r6
-3 F 6 + 8 E 4 ( 7 * 2 T 0 $ 
+$ 0 E 1 + 6 F 3 
 Action = r4
-9 T 6 + 8 E 4 ( 7 * 2 T 0 $ 
-Action = r1
-8 E 4 ( 7 * 2 T 0 $ 
-Action = d11
-11 ) 8 E 4 ( 7 * 2 T 0 $ 
-Action = r5
-10 F 7 * 2 T 0 $ 
+$ 0 E 1 + 6 T 9 
+Action = d7
+$ 0 E 1 + 6 T 9 * 7 
+Action = d5
+$ 0 E 1 + 6 T 9 * 7 a 5 
+Action = r6
+$ 0 E 1 + 6 T 9 * 7 F 10 
 Action = r3
-2 T 0 $ 
-Action = r2
-1 E 0 $ 
+$ 0 E 1 + 6 T 9 
+Action = r1
+$ 0 E 1 
+Action = d6
+$ 0 E 1 + 6 
+Action = d5
+$ 0 E 1 + 6 a 5 
+Action = r6
+$ 0 E 1 + 6 F 3 
+Action = r4
+$ 0 E 1 + 6 T 9 
+Action = d7
+$ 0 E 1 + 6 T 9 * 7 
+Action = d5
+$ 0 E 1 + 6 T 9 * 7 a 5 
+Action = r6
+$ 0 E 1 + 6 T 9 * 7 F 10 
+Action = r3
+$ 0 E 1 + 6 T 9 
+Action = r1
+$ 0 E 1 
+Action = d6
+$ 0 E 1 + 6 
+Action = d5
+$ 0 E 1 + 6 a 5 
+Action = r6
+$ 0 E 1 + 6 F 3 
+Action = r4
+$ 0 E 1 + 6 T 9 
+Action = r1
+$ 0 E 1 
 Action = acc
 
 Sirul este corect
+
+Cod Intermediar
+t1 = a2 * a3 
+t2 = a1 + t1 
+t3 = a4 * a5 
+t4 = t2 + t3 
+t5 = t4 + a6 

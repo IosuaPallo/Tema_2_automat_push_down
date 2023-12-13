@@ -20,6 +20,9 @@ public: string first;
 void citire(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string, vector<string>>& actionTable, string& startString);
 void citire3(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, string& startString);
 
+
+string createStringFromNumber(int number);
+
 string remakeString(string result, int position);
 bool egal(vector<Tuple> el1, vector<Tuple>  el2);
 bool contains(vector<string> nonTerminals, string symbol);
@@ -30,7 +33,8 @@ vector<Tuple> genSalt(vector<Tuple>i, string x, vector<string> nonTerminals, vec
 string completeazaReducerea(int nrProd);
 
 
-int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string, vector<string>>& actionTable, string& startString);
+string findOperatorInProduction(string production, vector<string>operators);
+int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string, vector<string>>& actionTable, string& startString, vector<vector<string>>& codIntermediar, vector<string>& historyStack);
 void genColectieSiRelatii(vector<string> nonTerminals, vector<Tuple> grammar, vector<vector<Tuple>>& colectie, vector<vector<string>>& relatii);
 
 void initializareTabele(map<string, vector<string>>& actionTable, map<string, vector<int>>& jumpTable, vector<string> nonTerminals, vector<string>terminals, int colectieLength);
@@ -49,6 +53,8 @@ int main() {
 	map<string, vector<int>> jumpTable;
 	vector<vector<Tuple>> colectie;
 	vector<vector<string>> relatii;
+	vector<vector<string>> codIntermediar; 
+	vector<string> historyStack; 
 
 
 	citire3(grammar, nonTerminals, terminals, startSymbol, startString);
@@ -58,11 +64,27 @@ int main() {
 
 
 	//citire(grammar, nonTerminals, terminals, startSymbol, jumpTable, actionTable, startString);
-	int sem = verifyString(grammar, nonTerminals, terminals, startSymbol, jumpTable, actionTable, startString);
+	int sem = verifyString(grammar, nonTerminals, terminals, startSymbol, jumpTable, actionTable, startString, codIntermediar, historyStack);
 
 	string result;	
 	sem == 1 ? result = "Sirul este corect\n" : result = "Sirul NU este corect\n";
 	fout <<"\n" << result;
+
+	fout << "\nCod Intermediar\n";
+
+	for (int i = 0; i < codIntermediar.size();i++) {
+		fout << "t" << i+1 << " = ";
+		for (string term : codIntermediar[i]) {
+			fout << term << " "; 
+		}
+		fout << "\n"; 
+	}
+	/*fout << "\n"; 
+
+	for (string historyString : historyStack) {
+		fout << historyString << "\n";
+	}*/
+
 	fout.close(); 
 }
 
@@ -352,19 +374,53 @@ string remakeString(string result, int position) {
 	return result.substr(0, position) + result.substr(position + 1, 1) + "." + result.substr(position + 2);
 }
 
+string createStringFromNumber(int number) {
+	string term;
+	while (number != 0) {
+		term += number % 10 + '0';
+		number /= 10;
+	}
+	reverse(term.begin(), term.end());
+	return term;
+}
 
 
-int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string, vector<string>>& actionTable, string& startString) {
+
+void actiuneGenerare(int actiune, stack<string> &stivaAtribuire,  vector<vector<string>>& codIntermediar,  string terminal) {
+	if (actiune == 0) {
+		stivaAtribuire.push(terminal); 
+	}
+	else if (actiune == 1) {
+		string last = stivaAtribuire.top();
+		stivaAtribuire.pop(); 
+		string almostLast = stivaAtribuire.top();
+		stivaAtribuire.pop();
+		codIntermediar.push_back({ almostLast,terminal,last});
+		string term;
+		term += "t" + createStringFromNumber(codIntermediar.size()); 
+		stivaAtribuire.push(term); 
+	}
+}
+
+
+
+int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string, vector<string>>& actionTable, string& startString, vector<vector<string>>&codIntermediar, vector<string>&historyStack) {
 	int sem = 0;
 	stack<string> stiva;
+	stack<string> stivaAtribuire; 
 	stiva.push("$");
 	stiva.push("0");
+	int index = 0; 
 	while (sem == 0) {
 		stack<string>stiva2 = stiva;
-
+		vector<string> vectorStiva; 
 		while (!stiva2.empty()) {
-			fout << stiva2.top() << " ";
+			vectorStiva.insert(vectorStiva.begin(), stiva2.top());
 			stiva2.pop();
+		}
+
+		for (string term : vectorStiva) {
+			fout << term << " ";
 		}
 		fout << "\n";
 
@@ -372,9 +428,9 @@ int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<st
 		int min = startString.size() + 1;
 		string key = "";
 
-		string element = stiva.top();
+
 		int stare;
-		stare = stoi(element);
+		stare = stoi(stiva.top());
 
 		for (int k = 0; k < terminals.size(); k++) {
 			position[k] = startString.find(terminals[k]);
@@ -383,6 +439,7 @@ int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<st
 				key = terminals[k];
 			}
 		}
+
 		if (min != 0) {
 			sem = -1;
 		}
@@ -406,6 +463,9 @@ int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<st
 						string second = grammar[stareUrmatoare - 1].second;
 
 						vector<int> nonTerminalPosition(nonTerminals.size(), -1);
+
+						vector<string> grammarOperators = { "+","*"};
+
 						int min = second.size() + 1;
 						string reductionKey = "";
 						for (int k = 0; k < nonTerminals.size(); k++) {
@@ -438,15 +498,48 @@ int verifyString(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<st
 							continue;
 						}
 						stiva.push(to_string(jumpTableState));
+
+						string terminal = findOperatorInProduction(second, grammarOperators);
+						if (terminal == "") {
+							if (reductionKey == "a") {
+								index++; 
+								terminal = reductionKey + createStringFromNumber(index);
+								actiuneGenerare(0, stivaAtribuire, codIntermediar,terminal);
+							}
+						}
+						else {
+							actiuneGenerare(1, stivaAtribuire, codIntermediar,terminal);
+						}
+
 					}
 				}
 			}
 			else {
 				sem = -1;
 			}
+			stack<string> stivaDuplicat = stivaAtribuire;
+			vector<string> vectorTerms;
+			string history;
+			while (!stivaDuplicat.empty()) {
+				vectorTerms.insert(vectorTerms.begin(), stivaDuplicat.top());
+				stivaDuplicat.pop();
+			}
+			for (string term : vectorTerms) {
+				history += term + " ";
+			}
+			historyStack.push_back(history);
 		}
 	}
 	return sem; 
+}
+
+string findOperatorInProduction(string production, vector<string>operators) {
+	for (int i = 0; i < operators.size(); i++) {
+		if (production.find(operators[i]) != string::npos) {
+			return operators[i]; 
+		}
+	}
+	return ""; 
 }
 
 void citire(vector<Tuple>& grammar, vector<string>& nonTerminals, vector<string>& terminals, string& startSymbol, map<string, vector<int>>& jumpTable, map<string,vector<string>> &actionTable ,string &startString) {
